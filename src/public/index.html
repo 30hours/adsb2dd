@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delay Doppler Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Delay Doppler Calculator</h1>
+
+<form id="delayDopplerForm">
+  <label for="rx">Receiver Location (lat, lon, alt):</label>
+  <input type="text" id="rx" placeholder="e.g., 37.7749, -122.4194, 100">
+
+  <label for="tx">Transmitter Location (lat, lon, alt):</label>
+  <input type="text" id="tx" placeholder="e.g., 38.1234, -121.5678, 200">
+
+  <label for="fc">Frequency (fc):</label>
+  <input type="text" id="fc" placeholder="e.g., 100">
+
+  <label for="serverName">Server Name:</label>
+  <input type="text" id="serverName" placeholder="e.g., myserver">
+
+  <button type="button" onclick="constructUrl()">Generate URL</button>
+</form>
+
+<p id="generatedUrl"></p>
+
+<script>
+  function constructUrl() {
+    const rx = document.getElementById('rx').value;
+    const tx = document.getElementById('tx').value;
+    const fc = document.getElementById('fc').value;
+    const serverName = document.getElementById('serverName').value;
+
+    const url = `/api/delaydoppler?rx=${rx}&tx=${tx}&fc=${fc}&serverName=${serverName}`;
+
+    document.getElementById('generatedUrl').textContent = `Generated URL: ${url}`;
+  }
+</script>
+
+</body>
+</html>

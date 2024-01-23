@@ -1,0 +1,13 @@
+{
+  "name": "adsb2dd",
+  "version": "1.0.0",
+  "description": "adsb2dd",
+  "author": "github.com/30hours",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.1"
+  }
+}

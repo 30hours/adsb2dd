@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+
+  adsb2dd:
+    restart: always
+    build: .
+    image: adsb2dd
+    ports:
+      - 49155:80
+    network_mode: bridge
+    container_name: adsb2dd
