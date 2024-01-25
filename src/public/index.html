@@ -54,7 +54,7 @@
     <form id="delayDopplerForm">
       <label for="rxLocation">Receiver Location:</label>
       <select id="rxLocation" class="form-select rounded-0" onchange="toggleCustomFields('rxLocation')">
-        <option value="37.7749,-122.4194,100">Schulz Building, Adelaide</option>
+        <option value="-34.9192, 138.6027, 110">Schulz Building, Adelaide</option>
         <option value="-34.9315, 138.6967, 408">Skye Lookout, Adelaide</option>
         <option value="-34.8414, 138.7237, 230">The Gun Emplacement, Adelaide</option>
         <option value="custom">Custom</option>
@@ -79,7 +79,7 @@
       <input type="text" id="serverName" class="form-control rounded-0" placeholder="e.g. http://<tar1090-server>" value="http://adsb.30hours.dev">
       <button type="button" onclick="constructUrl()" class="btn btn-dark rounded-0">Generate URL</button>
     </form>
-    <p id="generatedUrl" class="mt-3 text-wrap text-break"></p>
+    <p id="generatedUrl" class="mt-3 text-break"></p>
   </div>
 </div>
 </div>

@@ -50,7 +50,7 @@
       return;
     }
 
-    var url = window.location.href + `api/delaydoppler?rx=${rx}&tx=${tx}&fc=${fc}&server=${serverName}`;
+    var url = window.location.href + `api/dd?rx=${rx}&tx=${tx}&fc=${fc}&server=${serverName}`;
     url = url.replace(/\s/g, '');
 
     // create an anchor element

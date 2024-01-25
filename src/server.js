@@ -4,7 +4,7 @@ const port = 80;
 
 app.use(express.static('public'));
 
-app.get('/api/delaydoppler', (req, res) => {
+app.get('/api/dd', (req, res) => {
 
   // extract and split query parameters
   const server = req.query.server;
