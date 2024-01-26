@@ -1,5 +1,9 @@
 import express from 'express';
 import fetch from 'node-fetch';
+
+import {checkTar1090, getTar1090} from './node/tar1090.js';
+import {lla2ecef, norm} from './node/geometry.js';
+
 const app = express();
 const port = 80;
 
@@ -48,11 +52,21 @@ app.get('/api/dd', async (req, res) => {
     dict[req.originalUrl]['server'] = server;
     dict[req.originalUrl]['apiUrl'] = apiUrl;
     dict[req.originalUrl]['out'] = {};
+    const ecefRx = lla2ecef(rxLat, rxLon, rxAlt);
+    const ecefTx = lla2ecef(txLat, txLon, txAlt);
+    dict[req.originalUrl]['ecefRx'] = ecefRx;
+    dict[req.originalUrl]['ecefTx'] = ecefTx;
+    dict[req.originalUrl]['dRxTx'] = norm([ecefRx.x - ecefTx.x, 
+      ecefRx.y - ecefTx.y, ecefRx.z - ecefTx.z]);
     return res.json(dict[req.originalUrl]['out']);
   } else {
     return res.status(500).json({ error: 'Error checking tar1090 validity.' });
   }
 
+});
+
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
 
 /// @brief Main event loop to update dict data.
@@ -98,6 +112,24 @@ setTimeout(process, tUpdate);
 function adsb2dd(key, json) {
 
   dict[key]['out']['timestamp'] = json.now;
+
+  // loop over aircraft from JSON
+  for (const aircraft of json.aircraft) {
+
+    // only consider aircraft with lat/lon/alt
+    if (isValidNumber(aircraft['lat']) && isValidNumber(aircraft['lon']) && isValidNumber(aircraft['alt_geom'])) {
+      
+      const hexCode = aircraft.hex;
+      dict[key]['out'][hexCode] = {};
+      dict[key]['out'][hexCode]['timestamp'] = json.now;
+      dict[key]['out'][hexCode]['flight'] = aircraft.flight;
+
+      // bistatic delay (km)
+      
+
+    }
+
+  }
   
 }
 
@@ -108,47 +140,3 @@ function isValidNumber(value) {
   return !isNaN(value);
 }
 
-/// @brief Check that the tar1090 server is valid and active.
-/// @param apiUrl Full path to aircraft.json.
-/// @return True if tar1090 server is valid.
-async function checkTar1090(apiUrl) {
-  try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data. Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    if (data && typeof data.now === 'number' && !isNaN(data.now)) {
-      return true;
-    } else {
-      console.log('Invalid or missing timestamp in the "now" key.');
-      return false;
-    }
-  } catch (error) {
-    console.error('Error:', error.message);
-    return false;
-  }
-}
-
-/// @brief Get JSON response from tar1090 server.
-/// @param apiUrl Full path to aircraft.json.
-/// @return JSON response.
-async function getTar1090(apiUrl) {
-  try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data. Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error:', error.message);
-    return false;
-  }
-}
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
