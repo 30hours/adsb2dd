@@ -55,7 +55,7 @@ app.get('/api/dd', async (req, res) => {
 
 });
 
-/// @brief Convert ADS-B coordinates to delay-Doppler coordinates.
+/// @brief Main event loop to update dict data.
 /// @details Loops over each request URL and updates dict data.
 /// This means multiple geometries/frequencies/servers can be used simultaneously.
 /// Removes dict entry if API not called for some time.
@@ -75,7 +75,7 @@ const process = async () => {
     }
 
     // core processing
-    dict[key]['out']['timestamp'] = json.now;
+    adsb2dd(key, json);
 
     // remove key after inactivity
     if (Date.now()/1000-dict[key]['out']['timestamp'] > tDelete) {
@@ -87,6 +87,19 @@ const process = async () => {
   setTimeout(process, tUpdate);
 };
 setTimeout(process, tUpdate);
+
+
+/// @brief Convert ADS-B coordinates to delay-Doppler coordinates.
+/// @details Implements core functionality of this program.
+/// Compute bistatic delay and Doppler using rx/tx locations.
+/// Apply coefficient to convert m/s to Hz.
+/// @param key Current key in dict (API endpoint).
+/// @param json Current JSON from tar1090 server.
+function adsb2dd(key, json) {
+
+  dict[key]['out']['timestamp'] = json.now;
+  
+}
 
 /// @brief Helper to check if a value is a valid number.
 /// @param value Value to check.
