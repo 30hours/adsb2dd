@@ -7,6 +7,7 @@ const port = 80;
 var dict = {};
 const tUpdate = 1000;
 const nApiMax = 10;
+const tDelete = 600;
 
 app.use(express.static('public'));
 
@@ -37,6 +38,15 @@ app.get('/api/dd', async (req, res) => {
   const isServerValid = await checkTar1090(apiUrl);
   if (isServerValid) {
     dict[req.originalUrl] = {};
+    dict[req.originalUrl]['rxLat'] = rxLat;
+    dict[req.originalUrl]['rxLon'] = rxLon;
+    dict[req.originalUrl]['rxAlt'] = rxAlt;
+    dict[req.originalUrl]['txLat'] = txLat;
+    dict[req.originalUrl]['txLon'] = txLon;
+    dict[req.originalUrl]['txAlt'] = txAlt;
+    dict[req.originalUrl]['fc'] = fc;
+    dict[req.originalUrl]['server'] = server;
+    dict[req.originalUrl]['apiUrl'] = apiUrl;
     dict[req.originalUrl]['out'] = {};
     return res.json(dict[req.originalUrl]['out']);
   } else {
@@ -51,11 +61,27 @@ app.get('/api/dd', async (req, res) => {
 /// Removes dict entry if API not called for some time.
 /// Recursive setTimeout call ensures no function overlapping.
 /// @return Void.
-const process = () => {
+const process = async () => {
   
   // loop over dict entries
   for (const [key, value] of Object.entries(dict)) {
-    dict[key]['out']['timestamp'] = Date.now();
+
+    // get latest JSON from server
+    var json = await getTar1090(dict[key]['apiUrl']);
+
+    // check that ADS-B data has updated
+    if (json.now === dict[key]['out']['timestamp']) {
+      continue;
+    }
+
+    // core processing
+    dict[key]['out']['timestamp'] = json.now;
+
+    // remove key after inactivity
+    if (Date.now()/1000-dict[key]['out']['timestamp'] > tDelete) {
+      delete(dict[key]);
+    }
+
   }
 
   setTimeout(process, tUpdate);
