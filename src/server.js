@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 
 import {checkTar1090, getTar1090} from './node/tar1090.js';
 import {lla2ecef, norm} from './node/geometry.js';
+import {isValidNumber} from './node/validate.js';
 
 const app = express();
 const port = 80;
@@ -131,12 +132,5 @@ function adsb2dd(key, json) {
 
   }
   
-}
-
-/// @brief Helper to check if a value is a valid number.
-/// @param value Value to check.
-/// @return True is value is valid.
-function isValidNumber(value) {
-  return !isNaN(value);
 }
 
