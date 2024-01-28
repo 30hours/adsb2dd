@@ -36,7 +36,7 @@ The system architecture is as follows:
 - The first API call to a set of inputs will result in a blank response `{}`. This is fine - the first API call adds the set of inputs to the processing loop.
 - This approach allows multiple sets of inputs to run simultaneously on the same server.
 - Refresh and if there are moving aircraft in the server, the delay/Doppler coordinates will be computed.
-- The API provides a JSON output in the format `{"<hex-code>":{"timestamp":<timestamp>,"flight":<flight-number>,"delay":<delay>,"doppler":<doppler>}}.
+- The API provides a JSON output in the format `{"<hex-code>":{"timestamp":<timestamp>,"flight":<flight-number>,"delay":<delay>,"doppler":<doppler>}}`.
 - If no API calls are provided for a set of inputs after 10 minutes, that set will be dropped from the processing loop.
 
 ## Future Work
