@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import fetch from 'node-fetch';
 
 import {checkTar1090, getTar1090} from './node/tar1090.js';
@@ -6,6 +7,7 @@ import {lla2ecef, norm, ft2m} from './node/geometry.js';
 import {isValidNumber} from './node/validate.js';
 
 const app = express();
+app.use(cors());
 const port = 80;
 
 // constants
@@ -128,7 +130,7 @@ function adsb2dd(key, json) {
 
     // only consider aircraft with lat/lon/alt/flight
     if (isValidNumber(aircraft['lat']) && isValidNumber(aircraft['lon']) && 
-      isValidNumber(aircraft['alt_geom'] && ('flight' in aircraft))) {
+      isValidNumber(aircraft['alt_geom'] && (aircraft['flight'] != undefined))) {
 
       // add new entry
       const hexCode = aircraft.hex;
@@ -147,7 +149,7 @@ function adsb2dd(key, json) {
       }
 
       dict[key]['out'][hexCode]['timestamp'] = json.now + aircraft.seen_pos;
-      dict[key]['out'][hexCode]['flight'] = aircraft.flight;
+      dict[key]['out'][hexCode]['flight'] = (aircraft.flight);
       dict[key]['proc'][hexCode]['lat'] = aircraft['lat'];
       dict[key]['proc'][hexCode]['lon'] = aircraft['lon'];
       dict[key]['proc'][hexCode]['alt'] = aircraft['alt_geom'];
