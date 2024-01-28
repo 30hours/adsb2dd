@@ -37,3 +37,9 @@ export function norm(vector) {
   return Math.sqrt(vector.reduce((sum, value) => sum + value ** 2, 0));
 }
 
+/// @brief Convert feet to meters.
+/// @param feet Value in feet.
+/// @return Value in meters.
+export function ft2m(feet) {
+  return feet * 0.3048;
+}
