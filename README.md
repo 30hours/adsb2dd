@@ -7,7 +7,7 @@ Convert ADSB data to delay-Doppler truth - see a live instance at [http://adsb2d
 - Provides an API to input receiver/transmitter coordinates, radar center frequency and [tar1090](https://github.com/wiedehopf/tar1090) server.
 - A web front-end calculator is provided to generate a correct API endpoint.
 - Outputs JSON data with a delay in km and Doppler in Hz.
-- Use the JSON output to map truth onto a delay-Doppler map, for example in [blah2](http://github.com/30hours/adsb2dd).
+- Use the JSON output to map truth onto a delay-Doppler map, for example in [blah2](http://github.com/30hours/blah2).
 
 ## Usage
 
