@@ -17,6 +17,7 @@ const nApiMax = 10;
 const tDelete = 600;
 const tDeletePlane = 5;
 const nMaxDelayArray = 10;
+const nDopplerSmooth = 10;
 
 app.use(express.static('public'));
 
@@ -171,50 +172,25 @@ function adsb2dd(key, json) {
       dict[key]['proc'][hexCode]['timestamps'].push(json.now + aircraft.seen_pos);
 
       // bistatic Doppler (Hz)
-      if (dict[key]['proc'][hexCode]['delays'].length >= 5) {
+      if (dict[key]['proc'][hexCode]['delays'].length >= 2) {
 
-	// 5 sample weighted average
-	/*
-	const delta_t = dict[key]['proc'][hexCode]['timestamps'].at(-1)
-          - dict[key]['proc'][hexCode]['timestamps'].at(-5);
-	const weightedSum = 5*dict[key]['proc'][hexCode]['delays'].at(-1)
-	  + 4*dict[key]['proc'][hexCode]['delays'].at(-2)
-	  + 3*dict[key]['proc'][hexCode]['delays'].at(-3)
-	  + 2*dict[key]['proc'][hexCode]['delays'].at(-4)
-	  + 1*dict[key]['proc'][hexCode]['delays'].at(-5);
-        const doppler_ms = weightedSum / (15 * delta_t);
-        const doppler = -doppler_ms/(2*(299792458/(dict[key]['fc']*1000000)));
-	*/
+	// smoothed derivative using median method
+	const doppler_ms_arr = smoothedDerivativeUsingMedian(
+	  dict[key]['proc'][hexCode]['delays'], 
+	  dict[key]['proc'][hexCode]['timestamps'], nDopplerSmooth);
+	const doppler_ms = doppler_ms_arr.at(-1);
 
-	// moving mean delays
-	const windowSize = 5;
-  	const filteredData = [];
-	const data = dict[key]['proc'][hexCode]['delays'];
-  	for (let i = 0; i < data.length; i++) {
-    	  const startIndex = Math.max(0, i - windowSize + 1);
-    	  const endIndex = i + 1;
-    	  const windowValues = data.slice(startIndex, endIndex);
-    	  const mean = windowValues.reduce((total, value) => total + value, 0)/windowValues.length;
-      	  filteredData.push(mean);
-  	}
-
-	// standard filtered
-	const delta_t = dict[key]['proc'][hexCode]['timestamps'].at(-1)
-          - dict[key]['proc'][hexCode]['timestamps'].at(-2);
-	const diff = filteredData.at(-1)
-	  - filteredData.at(-2);
-        const doppler_ms = diff / delta_t;
-        const doppler = -doppler_ms/(2*(299792458/(dict[key]['fc']*1000000)));
-
-	// standard
+	// standard derivative (noisy)
 	/*
 	const delta_t = dict[key]['proc'][hexCode]['timestamps'].at(-1)
           - dict[key]['proc'][hexCode]['timestamps'].at(-2);
 	const diff = dict[key]['proc'][hexCode]['delays'].at(-1)
 	  - dict[key]['proc'][hexCode]['delays'].at(-2);
         const doppler_ms = diff / delta_t;
-        const doppler = -doppler_ms/(2*(299792458/(dict[key]['fc']*1000000)));
 	*/
+
+	// convert Doppler to Hz
+        const doppler = -doppler_ms/(1*(299792458/(dict[key]['fc']*1000000)));
 
 	// output data
 	dict[key]['out'][hexCode]['delay'] = delay/1000;
@@ -233,3 +209,55 @@ function adsb2dd(key, json) {
   
 }
 
+/// @brief Computes a smoothed derivative of delays with respect to timestamps. 
+/// @details Using a moving median method on the last k samples. 
+/// If fewer than k samples are given for delays and timestamps, it will use all available samples.
+/// Just a hunch and probably not optimum.
+/// @param delays Array to diff.
+/// @param timestamps Array to diff with respect to.
+/// @param k Maximum number of samples to compute median on.
+/// @return Array containing a smoothed derivative.
+function smoothedDerivativeUsingMedian(delays, timestamps, k) {
+  if (delays.length !== timestamps.length || delays.length < 2 || k < 2) {
+    throw new Error('Invalid input data for computing the derivative.');
+  }
+
+  const result = [];
+
+  for (let i = 0; i < delays.length; i++) {
+    const startIdx = Math.max(0, i - k + 1);
+    const endIdx = i + 1;
+
+    const lastKDelays = delays.slice(startIdx, endIdx);
+    const lastKTimestamps = timestamps.slice(startIdx, endIdx);
+
+    const deltaDelays = lastKDelays.map((delay, idx) => {
+      if (idx > 0) {
+        const deltaTime = lastKTimestamps[idx] - lastKTimestamps[idx - 1];
+        return (delay - lastKDelays[idx - 1]) / deltaTime;
+      }
+      return 0; // If it's the first element, set the derivative to 0.
+    });
+
+    // calculate the moving median of the delta delays
+    const movingMedianDerivative = calculateMovingMedian(deltaDelays);
+
+    result.push(movingMedianDerivative);
+  }
+
+  return result;
+}
+
+/// @brief Helper function to calculate the moving median of an array
+/// @param arr Array to calculate moving median on.
+/// @return Array of moving median.
+function calculateMovingMedian(arr) {
+  const sortedArr = [...arr].sort((a, b) => a - b);
+  const middle = Math.floor(sortedArr.length / 2);
+
+  if (sortedArr.length % 2 === 0) {
+    return (sortedArr[middle - 1] + sortedArr[middle]) / 2;
+  } else {
+    return sortedArr[middle];
+  }
+}
