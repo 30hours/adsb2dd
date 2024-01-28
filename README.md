@@ -44,6 +44,7 @@ The system architecture is as follows:
 - Add a 2D plot showing all aircraft in delay-Doppler space.
 - Add a map showing aircraft in geographic space below the above plot.
 - Investigate algorithms to accurately compute smooth Doppler values.
+- Some functional tests to ensure key features are working.
 
 ## License
 
