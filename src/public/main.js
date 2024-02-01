@@ -53,7 +53,12 @@
     var url = window.location.href + `api/dd?rx=${rx}&tx=${tx}&fc=${fc}&server=${serverName}`;
     url = url.replace(/\s/g, '');
 
+    if (url) {
+      window.open(url, '_blank'); // Open in a new tab or window
+    }
+
     // create an anchor element
+	  /*
     var linkElement = document.createElement('a');
     linkElement.href = url;
     linkElement.target = '_blank'; // Open in a new tab or window
@@ -63,5 +68,6 @@
     var generatedUrlElement = document.getElementById('generatedUrl');
     generatedUrlElement.innerHTML = '';
     generatedUrlElement.appendChild(linkElement);
+    */
   }
 

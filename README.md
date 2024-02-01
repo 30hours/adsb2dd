@@ -32,6 +32,7 @@ The delay-Doppler data is computed as follows:
 - The bistatic Doppler by definition is the rate-of-change of the bistatic range. Unfortunately it's well known that [differentiation amplifies noise](https://dsp.stackexchange.com/questions/16540/derivative-of-noisy-signal) - as the bistatic range data has a small amount of noise, the Doppler values have even larger noise. We also require a causal solution (dependent only on previous values) which means we can't use a more accurate [Savitzky Golay filter](https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter). The approach here is to use less accurate moving average filter to smooth the bistatic rangedata prior to differentation.
 - Currently computing a smoothed derivative by finding the median on the last *k* samples of the bistatic range vector. This is by no means optimal - however it seems to work reasonably well and follow targets with *k=10*. Note this is causal and generally slightly lags the truth since we're using previous samples unweighted.
 - Future work will be to try and extrapolate/guess future bistatic range values (assume a constant acceleration) and apply the Savitzky Golay filter - I will call this pseudo-causal since I'm guessing future samples. I expect this will be a more accurate source of truth.
+- On second thoughts, may make more sense to run a Kalman filter smoother (which is inherently causal).
 
 The system architecture is as follows:
 
