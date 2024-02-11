@@ -193,8 +193,8 @@ function adsb2dd(key, json) {
         const doppler = -doppler_ms/(1*(299792458/(dict[key]['fc']*1000000)));
 
 	// output data
-	dict[key]['out'][hexCode]['delay'] = delay/1000;
-        dict[key]['out'][hexCode]['doppler'] = doppler;
+	dict[key]['out'][hexCode]['delay'] = limit_digits(delay/1000, 5)
+        dict[key]['out'][hexCode]['doppler'] = limit_digits(doppler, 5)
 
 	// limit max number of storage
         if (dict[key]['proc'][hexCode]['delays'].length >= nMaxDelayArray) {
@@ -207,6 +207,15 @@ function adsb2dd(key, json) {
 
   }
   
+}
+
+
+function limit_digits(number, digits) {
+  if (Number.isInteger(number)) {
+    return number;
+  } else {
+    return number.toFixed(digits);
+  }
 }
 
 /// @brief Computes a smoothed derivative of delays with respect to timestamps. 
