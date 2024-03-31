@@ -23,8 +23,10 @@ app.use(express.static('public'));
 
 app.get('/api/dd', async (req, res) => {
 
+  console.log(req.originalUrl);
+
   if (req.originalUrl in dict) {
-    dict[req.originalUrl]['out']['timestamp'] = Date.now()/1000;
+    dict[req.originalUrl]['timestamp'] = Date.now()/1000;
     return res.json(dict[req.originalUrl]['out']);
   }
 
@@ -59,7 +61,7 @@ app.get('/api/dd', async (req, res) => {
     dict[req.originalUrl]['server'] = server;
     dict[req.originalUrl]['apiUrl'] = apiUrl;
     dict[req.originalUrl]['out'] = {};
-    dict[req.originalUrl]['out']['timestamp'] = Date.now()/1000;
+    dict[req.originalUrl]['timestamp'] = Date.now()/1000;
     dict[req.originalUrl]['proc'] = {};
     const ecefRx = lla2ecef(rxLat, rxLon, rxAlt);
     const ecefTx = lla2ecef(txLat, txLon, txAlt);
@@ -85,8 +87,6 @@ app.listen(port, () => {
 /// Recursive setTimeout call ensures no function overlapping.
 /// @return Void.
 const process_adsb2dd = async () => {
-  
-  console.log(dict);
 
   // loop over dict entries
   for (const [key, value] of Object.entries(dict)) {
@@ -95,7 +95,7 @@ const process_adsb2dd = async () => {
     var json = await getTar1090(dict[key]['apiUrl']);
 
     // check that ADS-B data has updated
-    if (json.now === dict[key]['out']['timestamp']) {
+    if (json.now === dict[key]['timestamp']) {
       continue;
     }
 
