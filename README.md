@@ -16,7 +16,7 @@ Convert ADSB data to delay-Doppler truth - see a live instance at [http://adsb2d
 - Run the docker compose command.
 
 ```
-sudo git clone http://github.com/30hours/blah2 /opt/adsb2dd
+sudo git clone http://github.com/30hours/adsb2dd /opt/adsb2dd
 cd /opt/adsb2dd
 sudo docker compose up -d
 ```
